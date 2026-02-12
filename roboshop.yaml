@@ -39,7 +39,7 @@
         zone: "{{ domain_name }}"
         record: "{{ item.item }}.{{ env }}.{{ domain_name }}"
         type: A
-        ttl: 30
+        ttl: 1
         value: "{{ item.instances[0].private_ip_address }}"
         wait: true
       loop: "{{ ec2_output.results }}"
