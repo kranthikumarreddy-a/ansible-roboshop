@@ -26,19 +26,20 @@
           Component: "{{ item }}"
           Name: "{{ item }}-{{ env }}"
       loop: "{{ instances }}"
-      register: ec2_output
+      register: ec2_info
 
     - name: Print EC2 output
       ansible.builtin.debug:
-        msg: "{{ ec2_output }}"
+        msg: "{{ ec2_info }}"
 
     - name: Create an A record
-      amazon.aws.route53:
-        state: present
-        zone: "{{ domain_name }}"
-        record: "{{ item.item }}.{{ env }}.{{ domain_name }}"
-        type: A
-        ttl: 1
-        value: "{{ item.instances[0].private_ip_address }}"
-        wait: true
-      loop: "{{ ec2-output.results }}" 
+      - name: Create an A record
+  amazon.aws.route53:
+    state: present
+    zone: "{{ domain_name }}"
+    record: "{{ item.item }}.{{ env }}.{{ domain_name }}"
+    type: A
+    ttl: 30
+    value: "{{ item.instances[0].private_ip_address }}"
+    wait: true
+  loop: "{{ ec2_info.results }}"
