@@ -33,13 +33,12 @@
         msg: "{{ ec2_info }}"
 
     - name: Create an A record
-      - name: Create an A record
-  amazon.aws.route53:
-    state: present
-    zone: "{{ domain_name }}"
-    record: "{{ item.item }}.{{ env }}.{{ domain_name }}"
-    type: A
-    ttl: 30
-    value: "{{ item.instances[0].private_ip_address }}"
-    wait: true
-  loop: "{{ ec2_info.results }}"
+      amazon.aws.route53:
+        state: present
+        zone: "{{ domain_name }}"
+        record: "{{ item.item }}.{{ env }}.{{ domain_name }}"
+        type: A
+        ttl: 30
+        value: "{{ item.instances[0].private_ip_address }}"
+        wait: true
+      loop: "{{ ec2_info.results }}"
