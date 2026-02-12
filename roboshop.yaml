@@ -1,30 +1,32 @@
-- name: This playbook used to create ec-2 instances and update the Route 53 records.
-  hosts: local
+- name: This playbook creates EC2 instances and updates Route53 records
+  hosts: localhost
   connection: local
-  become: yes
+  become: false
+
   vars:
-    ami_id:  "ami-0220d79f3f480ecf5"
+    ami_id: "ami-0220d79f3f480ecf5"
     sg_id: "sg-019f25a2463a096b9"
     env: dev
     instances:
-    - mangodb
-    - catologe
+      - mongodb
+      - catalogue
+
   tasks:
-  - name: Create ec2 instances
-    amazon.aws.ec2_instance:
+    - name: Create EC2 instances
+      amazon.aws.ec2_instance:
         instance_type: t3.micro
-        image_id: "{{ ami_id }}" # Example AMI ID, needs to be valid for your region
+        image_id: "{{ ami_id }}"
         wait: true
         security_group: "{{ sg_id }}"
-        name: "{{ item }}-{{ env}}"
+        name: "{{ item }}-{{ env }}"
         tags:
           Project: roboshop
           Environment: "{{ env }}"
           Component: "{{ item }}"
-          Name: "{{ item }}-{{ env}}"
-        loop: "{{ instances }}"
-        register: ec2_info
+          Name: "{{ item }}-{{ env }}"
+      loop: "{{ instances }}"
+      register: ec2_info
 
-  - name: print the outpu
-    ansible.become.debug:
-      msg: "{{ ec2-info }}"
+    - name: Print EC2 output
+      ansible.builtin.debug:
+        msg: "{{ ec2_info }}"
