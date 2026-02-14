@@ -1,5 +1,5 @@
 - name: configuring mongodb 
-  hosts: mangodb
+  hosts: mongodb
   become: yes
   tasks:
 
