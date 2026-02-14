@@ -7,6 +7,7 @@
     sg_id: "sg-019f25a2463a096b9"
     domain_name: "daws-88sbatch.online"
     env: dev
+    action: create
     instances:
       - mongodb
       - catalogue
@@ -35,6 +36,7 @@
           Name: "{{ item }}-{{ env }}"
       loop: "{{ instances }}"
       register: ec2_info
+      when: action == "create"
 
     - name: Print EC2 output
       ansible.builtin.debug:
@@ -49,7 +51,22 @@
         ttl: 1
         value: "{{ item.instances[0].private_ip_address }}"
       loop: "{{ ec2_info.results }}"
+      when: action == "create"
 
     - name: Print Route53 results
       ansible.builtin.debug:
         msg: "{{ ec2_info.results }}"
+
+
+    - name: Create Route53 records
+      amazon.aws.route53:
+        state: present
+        zone: "{{ domain_name }}"
+        record: "roboshop-{{ env }}.{{ domain_name }}"
+        type: A
+        ttl: 1
+        value: "{{ item.instances[0].public_ip_address }}"
+      loop: "{{ ec2_info.results }}"
+      when:
+      - item.item == "frontend"
+      - action == "create"     
