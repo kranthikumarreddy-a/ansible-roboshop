@@ -51,9 +51,9 @@
         type: A
         ttl: 1
         value: "{{ item.instances[0].private_ip_address }}"
-      loop: "{{ ec2_output.results }}"
+      loop: "{{ ec2_info.results }}"
       when: operation == "create"
 
     - name: Print output results
       ansible.builtin.debug:
-        msg: "{{ ec2_output.results }}"
+        msg: "{{ ec2_info.results }}"
