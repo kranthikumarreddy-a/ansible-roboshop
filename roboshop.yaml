@@ -33,13 +33,17 @@
       ansible.builtin.debug:
         msg: "{{ ec2_info }}"
 
-    - name: Create an A record
-      amazon.aws.route53:
-        state: present
-        zone: "{{ domain_name }}"
-        record: "{{ item.item }}.{{ env }}.{{ domain_name }}"
-        type: A
-        ttl: 1
-        value: "{{ item.instances[0].private_ip_address }}"
-        wait: true
-      loop: "{{ ec2_output.results }}"
+    - name: Create Route53 records and wait until the changes have been replicated
+  amazon.aws.route53:
+    state: present
+    zone: "{{ domain_name }}"
+    record: "{{ item.item }}-{{ env }}.{{ domain_name }}"  # mongodb-dev.dev88s.online, frontend-dev.dev88s.online
+    type: A
+    ttl: 7200
+    value: "{{ item.instances[0].private_ip_address }}"
+  loop: "{{ ec2_output.results }}"
+  when: operation == "create"
+
+- name: Print output results
+  ansible.builtin.debug:
+    msg: "{{ ec2_output.results }}"
