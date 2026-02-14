@@ -18,14 +18,15 @@
         name: "{{ item }}"
         executable: pip3.9
       loop:
-      - PyMySQL
-      - cryptography
+      - boto3
+      - botocore
     - name: Create EC2 instances
       amazon.aws.ec2_instance:
         instance_type: t3.micro
         image_id: "{{ ami_id }}"
         region: us-east-1
         wait: true
+
         security_group: "{{ sg_id }}"
         name: "{{ item }}-{{ env }}"
         tags:
