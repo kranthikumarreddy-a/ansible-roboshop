@@ -1,7 +1,7 @@
 - name: This playbook creates EC2 instances and updates Route53 records
   hosts: localhost
   connection: local
-  become: true
+  #become: true
 
   vars:
     ami_id: "ami-0220d79f3f480ecf5"
