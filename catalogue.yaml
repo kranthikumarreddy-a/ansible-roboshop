@@ -41,7 +41,7 @@
 
   - name: unzip the catalogue zip file which is located at /tmp/catalogue.zip 
     ansible.builtin.unarchive:
-      path: /tmp/catalogue.zip 
+      src: /tmp/catalogue.zip 
       dest: /app
       remote_src: yes
 
