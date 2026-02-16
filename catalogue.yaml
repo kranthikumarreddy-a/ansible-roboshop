@@ -65,17 +65,21 @@
       name: mongodb-mongosh
       state: present
 
-  - name: check products loaded
-    ansible.builtin.command: mongosh --host "{{ MONGODB_HOST }}" --quiet  --eval 'db.getMongo().getDBNames().indexOf("catalogue")'
+  - name: Check catalogue products data
+    ansible.builtin.command: >
+      mongosh --host "{{ MONGODB_HOST }}" --quiet
+      --eval 'db.getSiblingDB("catalogue").products.findOne() != null'
     register: catalogue_output
+    changed_when: false
 
   - name: print the output
     ansible.builtin.debug:
       msg: "{{ catalogue_output }}"
 
-  - name: load the products
-    ansible.builtin.shell: mongosh --host "{{ MONGODB_HOST }}" </app/db/master-data.js
-    when: catalogue_output.stdout  | int < 0
+  - name: Load catalogue products
+    ansible.builtin.shell: >
+      mongosh --host "{{ MONGODB_HOST }}" < /app/db/master-data.js
+    when: catalogue_output.stdout | trim != "true"
 
   - name: start catalogue
     ansible.builtin.service:
