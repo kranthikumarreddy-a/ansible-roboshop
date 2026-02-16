@@ -1,5 +1,5 @@
 - name: This playbook creates EC2 instances and updates Route53 records
-  hosts: localhost
+  hosts: all
   connection: local
 
   vars:
@@ -50,6 +50,8 @@
         type: A
         ttl: 1
         value: "{{ item.instances[0].private_ip_address }}"
+        wait: false
+        overwrite: true
       loop: "{{ ec2_info.results }}"
       when: action == "create"
 
@@ -66,7 +68,40 @@
         type: A
         ttl: 1
         value: "{{ item.instances[0].public_ip_address }}"
+        wait: false
+        overwrite: true
       loop: "{{ ec2_info.results }}"
       when:
       - item.item == "frontend"
       - action == "create"     
+
+     ### DESTROY ###
+    - name: delete r53 records for frontend
+      amazon.aws.route53:
+        state: absent
+        zone: "{{ domain_name }}"
+        record: "roboshop-{{ env }}.{{ domain_name }}" # roboshop-dev.daws88s.online
+        type: A
+        ttl: 1
+      loop: "{{ instances }}"
+      when:  # and
+      - item == "frontend"
+      - action == "destroy"
+
+    - name: delete r53 records
+      amazon.aws.route53:
+        state: absent
+        zone: "{{ domain_name }}"
+        record: "{{ item }}-{{ env }}.{{ domain_name }}" # roboshop-dev.daws88s.online
+        type: A
+        ttl: 1
+      loop: "{{ instances }}"
+      when: action == "destroy"
+
+    - name: delete ec2 instance
+      amazon.aws.ec2_instance:
+        state: absent
+        name: "{{ item }}-{{ env }}"
+        wait: false
+      loop: "{{ instances }}"
+      when: action == "destroy"  
