@@ -52,7 +52,7 @@
   - name: copy the service file into /etc folder
     ansible.builtin.copy:
       src: catalogue.service
-      des: /etc/systemd/system/caalogue.service    
+      dest: /etc/systemd/system/caalogue.service    
 
   
   - name: copy mongo repo
